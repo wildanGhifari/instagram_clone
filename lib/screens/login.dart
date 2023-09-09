@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:instagram_clone/resources/auth_methods.dart';
+import 'package:instagram_clone/responsive/mobile_layout.dart';
+import 'package:instagram_clone/responsive/responsive_layout.dart';
+import 'package:instagram_clone/responsive/web_layout.dart';
+import 'package:instagram_clone/screens/signup.dart';
+import 'package:instagram_clone/utils/utils.dart';
 import 'package:instagram_clone/widgets/text_field.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,12 +18,46 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool onLoading = false;
 
   @override
   void dispose() {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+  }
+
+  void loginUser() async {
+    setState(() {
+      onLoading = true;
+    });
+    String res = await AuthMethods().loginUser(
+        email: _emailController.text, password: _passwordController.text);
+
+    setState(() {
+      onLoading = false;
+    });
+
+    if (res != "success") {
+      showSnackBar(res, context);
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            webScreenLayout: WebLayout(),
+            mobileScreenLayout: MobileLayout(),
+          ),
+        ),
+      );
+    }
+  }
+
+  void navigateToSignup() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const SignupScreen(),
+      ),
+    );
   }
 
   @override
@@ -66,8 +106,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                       ),
-                      onPressed: () {},
-                      child: const Text("Login"),
+                      onPressed: loginUser,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Login"),
+                          const SizedBox(width: 8),
+                          onLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Icon(Icons.arrow_forward_outlined)
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -80,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text("Don't have an account? "),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: navigateToSignup,
                       child: Container(
                         child: const Text(
                           "Sign up",
