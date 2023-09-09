@@ -42,7 +42,7 @@ class AuthMethods {
           "imageUrl": imgUrl,
         });
 
-        res = "Success";
+        res = "success";
       }
     } catch (err) {
       res = err.toString();

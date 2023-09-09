@@ -20,6 +20,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   Uint8List? _image;
+  bool onLoading = false;
 
   @override
   void dispose() {
@@ -35,6 +36,27 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       _image = userImagePicked;
     });
+  }
+
+  void signupUser() async {
+    setState(() {
+      onLoading = true;
+    });
+    String res = await AuthMethods().signUpUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+      username: _usernameController.text,
+      bio: _bioController.text,
+      file: _image!,
+    );
+
+    setState(() {
+      onLoading = false;
+    });
+
+    if (res != "success") {
+      showSnackBar(res, context);
+    }
   }
 
   @override
@@ -127,16 +149,19 @@ class _SignupScreenState extends State<SignupScreen> {
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                       ),
-                      onPressed: () async {
-                        String res = await AuthMethods().signUpUser(
-                          email: _emailController.text,
-                          password: _passwordController.text,
-                          username: _usernameController.text,
-                          bio: _bioController.text,
-                          file: _image!,
-                        );
-                      },
-                      child: const Text("Sign up"),
+                      onPressed: signupUser,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Sign Up"),
+                          const SizedBox(width: 8),
+                          onLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Icon(Icons.arrow_forward_outlined)
+                        ],
+                      ),
                     ),
                   ),
                 ),
