@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/models/users.dart';
+import 'package:instagram_clone/providers/users_provider.dart';
 import 'package:instagram_clone/utils/global_variables.dart';
+import 'package:provider/provider.dart';
 
 class MobileLayout extends StatefulWidget {
   const MobileLayout({super.key});
@@ -38,6 +41,8 @@ class _MobileLayoutState extends State<MobileLayout> {
 
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<UserProvider>(context).getUser;
+
     return Scaffold(
       body: PageView(
         controller: pageController,
@@ -50,30 +55,31 @@ class _MobileLayoutState extends State<MobileLayout> {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         onDestinationSelected: _navigationSelected,
         selectedIndex: currentPage,
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             selectedIcon: Icon(Icons.home_rounded),
             icon: Icon(Icons.home_outlined),
             label: "Home",
           ),
-          NavigationDestination(
+          const NavigationDestination(
             selectedIcon: Icon(Icons.search_rounded),
             icon: Icon(Icons.search_outlined),
             label: "Search",
           ),
-          NavigationDestination(
+          const NavigationDestination(
             selectedIcon: Icon(Icons.add_circle_rounded),
             icon: Icon(Icons.add_circle_outline),
             label: "Add Post",
           ),
-          NavigationDestination(
+          const NavigationDestination(
             selectedIcon: Icon(Icons.video_collection_rounded),
             icon: Icon(Icons.video_collection_outlined),
             label: "Videos",
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.person_rounded),
-            icon: Icon(Icons.person_outline),
+            icon: CircleAvatar(
+              backgroundImage: NetworkImage(user.imageUrl),
+            ),
             label: "Profile",
           ),
         ],
