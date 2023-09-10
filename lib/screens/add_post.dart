@@ -2,7 +2,11 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instagram_clone/models/users.dart';
+import 'package:instagram_clone/providers/users_provider.dart';
+import 'package:instagram_clone/resources/firestore_methods.dart';
 import 'package:instagram_clone/utils/utils.dart';
+import 'package:provider/provider.dart';
 
 class AddPost extends StatefulWidget {
   const AddPost({super.key});
@@ -14,6 +18,31 @@ class AddPost extends StatefulWidget {
 class _AddPostState extends State<AddPost> {
   final TextEditingController _captionController = TextEditingController();
   Uint8List? _file;
+  bool onLoading = false;
+
+  void postImage(String uid, String username, String profImage) async {
+    setState(() {
+      onLoading = true;
+    });
+    String res = await FireStore().uploadPost(
+      _captionController.text,
+      _file!,
+      uid,
+      username,
+      profImage,
+    );
+
+    setState(() {
+      onLoading = false;
+    });
+
+    if (res == "success") {
+      clearImage();
+      showSnackBar("New post added!", context);
+    } else {
+      showSnackBar(res, context);
+    }
+  }
 
   _selectImage(BuildContext context) async {
     return showDialog(
@@ -57,8 +86,22 @@ class _AddPostState extends State<AddPost> {
     );
   }
 
+  void clearImage() {
+    setState(() {
+      _file = null;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _captionController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<UserProvider>(context).getUser;
+
     return _file == null
         ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -73,7 +116,7 @@ class _AddPostState extends State<AddPost> {
             appBar: AppBar(
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                onPressed: () {},
+                onPressed: clearImage,
               ),
               title: const Text("New Post"),
               centerTitle: false,
@@ -81,7 +124,11 @@ class _AddPostState extends State<AddPost> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () => postImage(
+                      user.uid,
+                      user.username,
+                      user.imageUrl,
+                    ),
                     child: const Text("Post"),
                   ),
                 ),
@@ -89,6 +136,7 @@ class _AddPostState extends State<AddPost> {
             ),
             body: Column(
               children: [
+                onLoading ? const LinearProgressIndicator() : Container(),
                 SizedBox(
                   width: double.infinity,
                   child: AspectRatio(
