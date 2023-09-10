@@ -2,11 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/providers/users_provider.dart';
 import 'package:instagram_clone/responsive/mobile_layout.dart';
 import 'package:instagram_clone/responsive/responsive_layout.dart';
 import 'package:instagram_clone/responsive/web_layout.dart';
 import 'package:instagram_clone/screens/login.dart';
-import 'package:instagram_clone/screens/signup.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,44 +33,46 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Instagram Clone',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      // home: const ResponsiveLayout(
-      //   mobileScreenLayout: MobileLayout(),
-      //   webScreenLayout: WebLayout(),
-      // ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Instagram Clone',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              if (snapshot.hasData) {
+                return const ResponsiveLayout(
+                  webScreenLayout: WebLayout(),
+                  mobileScreenLayout: MobileLayout(),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text("${snapshot.error}"),
+                );
+              }
+            }
 
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.hasData) {
-              return const ResponsiveLayout(
-                webScreenLayout: WebLayout(),
-                mobileScreenLayout: MobileLayout(),
-              );
-            } else if (snapshot.hasError) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: Text("${snapshot.error}"),
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).primaryColor,
+                ),
               );
             }
-          }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).primaryColor,
-              ),
-            );
-          }
-
-          return const LoginScreen();
-        },
+            return const LoginScreen();
+          },
+        ),
       ),
     );
   }
