@@ -10,6 +10,17 @@ class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Get user detail using User Model ==========================.
+  Future<model.User> getUserDetail() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot snap =
+        await _firestore.collection('users').doc(currentUser.uid).get();
+
+    return model.User.fromSnap(snap);
+  }
+
+  // Login user ================================================.
   Future<String> loginUser(
       {required String email, required String password}) async {
     String res = "Some error occured";
@@ -29,7 +40,7 @@ class AuthMethods {
     return res;
   }
 
-  // Sign up users
+  // Sign up user ===============================================.
   Future<String> signUpUser({
     required String email,
     required String password,
