@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/utils/global_variables.dart';
 
 class MobileLayout extends StatefulWidget {
   const MobileLayout({super.key});
@@ -42,13 +43,7 @@ class _MobileLayoutState extends State<MobileLayout> {
         controller: pageController,
         onPageChanged: onPageChanged,
         physics: const NeverScrollableScrollPhysics(),
-        children: const [
-          Text("Home"),
-          Text("Search"),
-          Text("Add Post"),
-          Text("Videos"),
-          Text("Profile"),
-        ],
+        children: mobileHomeScreenItems,
       ),
       bottomNavigationBar: NavigationBar(
         height: 60,
