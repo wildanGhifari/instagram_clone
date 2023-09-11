@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-class PostCard extends StatefulWidget {
-  const PostCard({super.key});
+class PostCard extends StatelessWidget {
+  final dynamic snap;
+  const PostCard({super.key, required this.snap});
 
-  @override
-  State<PostCard> createState() => _PostCardState();
-}
-
-class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,18 +17,18 @@ class _PostCardState extends State<PostCard> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
                     CircleAvatar(
                       radius: 16,
                       backgroundImage: NetworkImage(
-                        "https://images.unsplash.com/photo-1675546529290-a2147e6e5cd5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8ZGVmYXVsdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=1000&q=60",
+                        snap['profImage'],
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
-                      "Username",
-                      style: TextStyle(
+                      snap['username'],
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     )
@@ -70,10 +67,10 @@ class _PostCardState extends State<PostCard> {
           ),
           // IMAGE SECTION =====================================================
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.35,
+            height: MediaQuery.of(context).size.height * 0.50,
             width: double.infinity,
             child: Image.network(
-              "https://images.unsplash.com/photo-1675546529290-a2147e6e5cd5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8ZGVmYXVsdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=1000&q=60",
+              snap['postUrl'],
               fit: BoxFit.cover,
             ),
           ),
@@ -115,22 +112,22 @@ class _PostCardState extends State<PostCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "2,244 likes",
+                      "${snap['likes'].length} likes",
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: RichText(
-                        text: const TextSpan(
+                        text: TextSpan(
                           children: [
                             TextSpan(
-                              text: "Username",
-                              style: TextStyle(
+                              text: snap['username'],
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             TextSpan(
-                              text: "  This is a caption to be replaced",
+                              text: " ${snap['caption']}",
                             ),
                           ],
                         ),
@@ -149,9 +146,10 @@ class _PostCardState extends State<PostCard> {
                       ),
                     ),
                     Container(
-                      child: const Text(
-                        "1 day ago",
-                        style: TextStyle(
+                      child: Text(
+                        timeago.format(snap['datePublished'].toDate(),
+                            locale: 'en'),
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
                         ),
